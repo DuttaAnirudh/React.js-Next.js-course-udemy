@@ -69,13 +69,44 @@ function Header() {
 }
 
 function Menu() {
+  const pizzas = pizzaData;
+  const numPizzas = pizzas.length;
   return (
     <main className="menu">
       <h2>Our menu</h2>
-      <Pizza />
-      <Pizza />
-      <Pizza />
-      <Pizza />
+
+      {numPizzas > 0 ? (
+        <ul className="pizzas">
+          {pizzaData.map((pizza) => (
+            <Pizza pizzaObj={pizza} key={pizza.name} />
+          ))}
+        </ul>
+      ) : (
+        <p>We're still working on our menu. Please come back later</p>
+      )}
+
+      {/* <div>
+        {pizzaData.map((pizza) => (
+          <Pizza
+            name={pizza.name}
+            ingredients={pizza.ingredients}
+            photoName={pizza.photoName}
+            price={pizza.price}
+          />
+        ))}
+      </div> */}
+      {/* <Pizza
+        name="Pizza Spinaci"
+        ingredients="Tomato, mozarella, spinach, and ricotta cheese"
+        photoName="pizzas/spinaci.jpg"
+        price={10}
+      />
+      <Pizza
+        name="Pizza Funghi"
+        ingredients="Tomato, mozarella, mushrooms, and onion"
+        photoName="pizzas/funghi.jpg"
+        price={12}
+      /> */}
     </main>
   );
 }
@@ -90,23 +121,52 @@ function Footer() {
   //     ? alert("We're currently open!")
   //     : alert("Sorry! We're closed");
 
+  // if (!isOpen) {
+  //   return (
+  //     <p>
+  //       We're happy to welcome you between {openHour} & {closeHour}
+  //     </p>
+  //   );
+  // }
+
   return (
     <footer className="footer">
-      {new Date().toLocaleTimeString()} We are currently open
+      {isOpen ? (
+        <Order closeHour={closeHour} />
+      ) : (
+        <p>
+          We're happy to welcome you between {openHour} & {closeHour}
+        </p>
+      )}
     </footer>
   );
 }
 
-function Pizza() {
+function Pizza({ pizzaObj }) {
+  if (pizzaObj.soldOut) {
+    return null;
+  }
+
   return (
-    <div>
-      <img src="pizzas/spinaci.jpg" alt="spinaci pizza" />
-      <h3>Pizza Spinaci</h3>
-      <p>Tomato, mozarella, spinach, and ricotta cheese</p>
-    </div>
+    <li className="pizza">
+      <img src={pizzaObj.photoName} alt={pizzaObj.name} />
+      <div>
+        <h3>{pizzaObj.name}</h3>
+        <p>{pizzaObj.ingredients}</p>
+        <span>${pizzaObj.price}</span>
+      </div>
+    </li>
   );
 }
 
+function Order({ closeHour }) {
+  return (
+    <div className="order">
+      <p>We're open untill {closeHour}:00 p.m</p>
+      <button className="btn">Order</button>
+    </div>
+  );
+}
 // React v18
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
