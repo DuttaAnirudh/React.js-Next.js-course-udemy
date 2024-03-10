@@ -1,3 +1,7 @@
-export default function Button({ children }) {
-  return <button className="button">{children}</button>;
+export default function Button({ toggleAddFriend, children }) {
+  return (
+    <button className="button" onClick={toggleAddFriend}>
+      {children}
+    </button>
+  );
 }

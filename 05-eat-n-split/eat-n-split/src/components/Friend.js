@@ -11,10 +11,10 @@ export default function Friend({ friend }) {
         }
       >
         {friend.balance === 0
-          ? `you and ${friend.name} are even`
+          ? `You and ${friend.name} are even`
           : friend.balance > 0
           ? `${friend.name} owes you $${Math.abs(friend.balance)}`
-          : `you owe ${friend.name} $${Math.abs(friend.balance)}`}
+          : `You owe ${friend.name} $${Math.abs(friend.balance)}`}
       </p>
       <Button>Select</Button>
     </li>
