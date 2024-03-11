@@ -1,6 +1,6 @@
-export default function Button({ toggleAddFriend, children }) {
+export default function Button({ onClickHandler, children }) {
   return (
-    <button className="button" onClick={toggleAddFriend}>
+    <button className="button" onClick={onClickHandler}>
       {children}
     </button>
   );
