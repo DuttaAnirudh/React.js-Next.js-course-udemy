@@ -119,6 +119,7 @@ export default function App() {
       }
 
       fetchMovies();
+      handleCLoseMovie();
 
       return function () {
         controller.abort();
@@ -307,6 +308,23 @@ function MovieDetails({
     onAddWatched(newWatchedMovie);
     onCLoseMovie();
   }
+
+  useEffect(
+    function () {
+      function callBack(e) {
+        if (e.code === "Escape") {
+          onCLoseMovie();
+        }
+      }
+
+      document.addEventListener("keydown", callBack);
+
+      return function () {
+        document.removeEventListener("keydown", callBack);
+      };
+    },
+    [onCLoseMovie]
+  );
 
   useEffect(
     function () {
