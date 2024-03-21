@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
 
 const tempMovieData = [
@@ -58,9 +58,15 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState(tempMovieData);
   const [isLoading, setIsLoading] = useState(false);
-  const [watched, setWatched] = useState([]);
   const [error, setError] = useState("");
   const [selectedID, setSelectedId] = useState(null);
+
+  // const [watched, setWatched] = useState([]);
+  // passing arguements inside a useState callback function is not allowed
+  const [watched, setWatched] = useState(function () {
+    const storedValue = localStorage.getItem("watched");
+    return JSON.parse(storedValue);
+  });
 
   function handleSelectMovie(id) {
     setSelectedId((selectedID) => (id === selectedID ? null : id));
@@ -76,7 +82,13 @@ export default function App() {
 
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
+
+    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
+
+  useEffect(() => {
+    localStorage.setItem("watched", JSON.stringify(watched));
+  }, [watched]);
 
   useEffect(
     function () {
@@ -213,6 +225,23 @@ function Numresults({ movies }) {
 }
 
 function Search({ query, setQuery }) {
+  const inputEl = useRef(null);
+
+  useEffect(() => {
+    function callBack(e) {
+      if (document.activeElement === inputEl.current) {
+        return;
+      }
+
+      if (e.code === "Enter") {
+        inputEl.current.focus();
+        setQuery("");
+      }
+    }
+    document.addEventListener("keydown", callBack);
+    return () => document.removeEventListener("keydown", callBack);
+  }, [setQuery]);
+
   return (
     <input
       className="search"
@@ -220,6 +249,7 @@ function Search({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 }
@@ -278,6 +308,8 @@ function MovieDetails({
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState();
 
+  const countRef = useRef(0);
+
   const movieIsRated = watchedMovie.find(
     (movie) => movie.imdbID === selectedID
   )?.userRating;
@@ -303,11 +335,18 @@ function MovieDetails({
       imdbRating: Number(imdbRating),
       userRating: Number(userRating),
       runtime: Number(runtime.split(" ").at(0)),
+      countRatingDecisions: countRef.current,
     };
 
     onAddWatched(newWatchedMovie);
     onCLoseMovie();
   }
+
+  useEffect(() => {
+    if (userRating) {
+      countRef.current = countRef.current++;
+    }
+  }, [userRating]);
 
   useEffect(
     function () {
