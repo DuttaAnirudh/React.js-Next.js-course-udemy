@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect } from "react";
 import Header from "./Header";
 import Main from "./Main";
 import Loader from "./Loader";
@@ -10,87 +10,10 @@ import FinishScreen from "./FinishScreen";
 import Footer from "./Footer";
 import Timer from "./Timer";
 import NextButton from "./NextButton";
-
-const SECS_PER_QUESTION = 30;
-
-const initialState = {
-  questions: [],
-
-  // 'loading', 'error, 'ready', 'active', 'finished'
-  status: "loading",
-  index: 0,
-  answer: null,
-  points: 0,
-  highScore: 0,
-  secondsRemaining: null,
-};
-
-function reducer(state, action) {
-  switch (action.type) {
-    case "dataRecieved":
-      return {
-        ...state,
-        questions: action.payload,
-        status: "ready",
-        secondsRemaining: state.questions.length * SECS_PER_QUESTION,
-      };
-
-    case "dataFailed":
-      return { ...state, status: "error" };
-
-    case "active":
-      return { ...state, status: "active" };
-
-    case "newAnswer":
-      const question = state.questions.at(state.index);
-      return {
-        ...state,
-        answer: action.payload,
-        points:
-          action.payload === question.correctOption
-            ? state.points + question.points
-            : state.points,
-      };
-
-    case "nextQuestion":
-      return { ...state, index: state.index + 1, answer: null };
-
-    case "finish":
-      return {
-        ...state,
-        status: "finished",
-        highScore:
-          state.points > state.highScore ? state.points : state.highScore,
-      };
-    case "restart":
-      return {
-        ...initialState,
-        questions: state.questions,
-        status: "ready",
-      };
-
-    case "tick":
-      return {
-        ...state,
-        secondsRemaining: state.secondsRemaining - 1,
-        status: state.secondsRemaining === 0 ? "finished" : state.status,
-      };
-    default:
-      throw new Error("YIKES!");
-  }
-}
+import { useQuizContext } from "../context/QuixContext";
 
 function App() {
-  const [
-    { questions, status, index, answer, points, highScore, secondsRemaining },
-    dispatch,
-  ] = useReducer(reducer, initialState);
-
-  const numQuestions = questions.length;
-  const maxPossiblePoints = questions.reduce(
-    (prev, cur) => prev + cur.points,
-    0
-  );
+  const { status, dispatch } = useQuizContext();
 
   useEffect(() => {
     fetch("http://localhost:9000/questions")
@@ -105,44 +28,19 @@ function App() {
       <Main>
         {status === "loading" && <Loader />}
         {status === "error" && <Error />}
-        {status === "ready" && (
-          <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
-        )}
+        {status === "ready" && <StartScreen />}
         {status === "active" && (
           <>
-            <Progress
-              index={index}
-              numQuestions={numQuestions}
-              points={points}
-              maxPossiblePoints={maxPossiblePoints}
-              answer={answer}
-            />
-            <Question
-              question={questions.at(index)}
-              answer={answer}
-              dispatch={dispatch}
-            />
+            <Progress />
+            <Question />
             <Footer>
-              <Timer dispatch={dispatch} secondsRemaining={secondsRemaining} />
-
-              <NextButton
-                dispatch={dispatch}
-                answer={answer}
-                numQuestions={numQuestions}
-                index={index}
-              />
+              <Timer />
+              <NextButton />
             </Footer>
           </>
         )}
 
-        {status === "finished" && (
-          <FinishScreen
-            points={points}
-            maxPossiblePoints={maxPossiblePoints}
-            highScore={highScore}
-            dispatch={dispatch}
-          />
-        )}
+        {status === "finished" && <FinishScreen />}
       </Main>
     </div>
   );
