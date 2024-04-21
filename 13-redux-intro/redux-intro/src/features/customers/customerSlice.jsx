@@ -1,38 +1,72 @@
+import { createSlice } from "@reduxjs/toolkit";
+
 const initialStateCuatomer = {
   fullName: "",
   nationalID: "",
   createdAt: "",
 };
 
-function customerReducer(state = initialStateCuatomer, action) {
-  switch (action.type) {
-    case "customer/createCustomer":
-      return {
-        ...state,
-        fullName: action.payload.fullName,
-        nationalID: action.payload.nationalID,
-        createdAt: action.payload.createdAt,
-      };
+const customerSlice = createSlice({
+  name: "customer",
+  initialState: initialStateCuatomer,
+  reducers: {
+    createCustomer: {
+      prepare(fullName, nationalID) {
+        return {
+          payload: {
+            fullName,
+            nationalID,
+            createdAt: new Date().toISOString(),
+          },
+        };
+      },
 
-    case "customer/updateName":
-      return { ...state, fullName: action.payload };
+      reducer(state, action) {
+        state.fullName = action.payload.fullName;
+        state.nationalID = action.payload.nationalID;
+        state.createdAt = action.payload.createdAt;
+      },
+    },
+    updateName(state, action) {
+      state.fullName = action.payload;
+    },
+  },
+});
 
-    default:
-      return state;
-  }
-}
+export const { customerReducer, createCustomer, updateName } =
+  customerSlice.actions;
 
-/////////////////////////////////////////
-// ACTION CREATORS : CUSTOMER MANAGEMENT
-export function createCustomer(fullName, nationalID) {
-  return {
-    type: "customer/createCustomer",
-    payload: { fullName, nationalID, createdAt: new Date().toISOString() },
-  };
-}
+export default customerSlice.reducer;
 
-export function updateName(fullName) {
-  return { type: "customer/updateName", payload: fullName };
-}
+// function customerReducer(state = initialStateCuatomer, action) {
+//   switch (action.type) {
+//     case "customer/createCustomer":
+//       return {
+//         ...state,
+//         fullName: action.payload.fullName,
+//         nationalID: action.payload.nationalID,
+//         createdAt: action.payload.createdAt,
+//       };
 
-export default customerReducer;
+//     case "customer/updateName":
+//       return { ...state, fullName: action.payload };
+
+//     default:
+//       return state;
+//   }
+// }
+
+// /////////////////////////////////////////
+// // ACTION CREATORS : CUSTOMER MANAGEMENT
+// export function createCustomer(fullName, nationalID) {
+//   return {
+//     type: "customer/createCustomer",
+//     payload: { fullName, nationalID, createdAt: new Date().toISOString() },
+//   };
+// }
+
+// export function updateName(fullName) {
+//   return { type: "customer/updateName", payload: fullName };
+// }
+
+// export default customerReducer;
