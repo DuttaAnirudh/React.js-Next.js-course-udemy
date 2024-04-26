@@ -3,6 +3,7 @@ import Button from '../../ui/Button';
 import { formatCurrency } from '../../utils/helpers';
 import { addItem, getCurrentQuantityById } from '../cart/cartSlice';
 import DeleteItem from '../cart/DeleteItem';
+import UpdateItemQuantity from '../cart/UpdateItemQuantity';
 
 function MenuItem({ pizza }) {
   const dispatch = useDispatch();
@@ -10,6 +11,7 @@ function MenuItem({ pizza }) {
   const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
 
   const currentQuantity = useSelector(getCurrentQuantityById(id));
+  const isAddedToCart = currentQuantity > 0;
 
   function handleAddToCart(e) {
     const newItem = {
@@ -43,15 +45,23 @@ function MenuItem({ pizza }) {
             </p>
           )}
 
-          {!soldOut && (
-            <div className="flex items-end space-x-2">
-              <Button type="small" onClick={handleAddToCart}>
-                Add to cart
-              </Button>
+          <div className="flex flex-col items-center gap-2">
+            {!soldOut && isAddedToCart && (
+              <UpdateItemQuantity
+                pizzaId={id}
+                currentQuantity={currentQuantity}
+              />
+            )}
 
-              {currentQuantity > 0 && <DeleteItem pizzaId={id} />}
+            <div className="flex items-end space-x-2">
+              {!soldOut && !isAddedToCart && (
+                <Button type="small" onClick={handleAddToCart}>
+                  Add to cart
+                </Button>
+              )}
+              {isAddedToCart && <DeleteItem pizzaId={id} />}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </li>
