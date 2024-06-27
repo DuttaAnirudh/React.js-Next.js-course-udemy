@@ -1,3 +1,5 @@
+ReactDOM.hydrateRoot(document.getElementById("root"), <Home />);
+
 const pizzas = [
   {
     name: "Focaccia",
